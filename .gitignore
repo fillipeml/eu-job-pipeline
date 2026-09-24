@@ -1,0 +1,31 @@
+# secrets and personal config
+.env
+.env.*
+!.env.example
+profile.md
+
+# local stores, reports, scan output
+.demo/
+data/
+reports/
+sanitize-report.*
+
+# AI tooling local state
+.claude/settings.local.json
+.claude/*.local.*
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
