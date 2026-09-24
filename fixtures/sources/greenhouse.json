@@ -1,0 +1,24 @@
+{
+  "jobs": [
+    {
+      "id": 7000000001,
+      "title": "LLM Engineer",
+      "updated_at": "2026-09-21T09:00:00+02:00",
+      "location": { "name": "Stockholm, Sweden" },
+      "absolute_url": "https://example.com/jobs/greenhouse/7000000001",
+      "company_name": "Fjord ML AB",
+      "departments": [{ "id": 1, "name": "Applied AI" }],
+      "content": "&lt;p&gt;Fjord ML AB builds retrieval-augmented assistants for legal teams.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Python, evals, RAG with citations&lt;/li&gt;&lt;li&gt;2-4 years of experience&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Hybrid in Stockholm. We sponsor visas and help with relocation.&lt;/p&gt;&lt;p&gt;Synthetic fixture for eu-job-pipeline.&lt;/p&gt;"
+    },
+    {
+      "id": 7000000002,
+      "title": "Staff Platform Engineer",
+      "updated_at": "2026-09-19T09:00:00+02:00",
+      "location": { "name": "Dublin, Ireland" },
+      "absolute_url": "https://example.com/jobs/greenhouse/7000000002",
+      "company_name": "Liffey Systems Ltd",
+      "departments": [{ "id": 2, "name": "Infrastructure" }],
+      "content": "&lt;p&gt;Kubernetes, Terraform, Go. 8+ years. Applicants must already hold a valid EU work permit.&lt;/p&gt;&lt;p&gt;Synthetic fixture for eu-job-pipeline.&lt;/p&gt;"
+    }
+  ]
+}

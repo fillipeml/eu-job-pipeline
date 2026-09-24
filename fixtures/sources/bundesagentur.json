@@ -1,0 +1,32 @@
+{
+  "stellenangebote": [
+    {
+      "beruf": "Data Engineer",
+      "titel": "Data Engineer (m/w/d) - Cloud Data Platform",
+      "refnr": "10000-1000000001-S",
+      "arbeitsort": { "plz": "80331", "ort": "München", "region": "Bayern", "land": "Deutschland" },
+      "arbeitgeber": "Quorum Compliance GmbH",
+      "aktuelleVeroeffentlichungsdatum": "2026-09-20",
+      "externeUrl": "https://example.com/jobs/bundesagentur/1000000001"
+    },
+    {
+      "beruf": "Softwareentwickler/in",
+      "titel": "Machine Learning Engineer (Remote möglich)",
+      "refnr": "10000-1000000002-S",
+      "arbeitsort": { "plz": "10115", "ort": "Berlin", "region": "Berlin", "land": "Deutschland" },
+      "arbeitgeber": "Nordlicht Analytics GmbH",
+      "aktuelleVeroeffentlichungsdatum": "2026-09-18"
+    },
+    {
+      "beruf": "Buchhalter/in",
+      "titel": "Buchhalter (m/w/d)",
+      "refnr": "10000-1000000003-S",
+      "arbeitsort": { "plz": "50667", "ort": "Köln", "region": "Nordrhein-Westfalen", "land": "Deutschland" },
+      "arbeitgeber": "Rheinwerk Data AG",
+      "aktuelleVeroeffentlichungsdatum": "2026-09-15"
+    }
+  ],
+  "maxErgebnisse": 3,
+  "page": 1,
+  "size": 100
+}

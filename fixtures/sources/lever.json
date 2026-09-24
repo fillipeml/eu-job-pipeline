@@ -1,0 +1,28 @@
+[
+  {
+    "id": "a1b2c3d4-0000-4000-8000-000000000001",
+    "text": "Data Engineer",
+    "categories": {
+      "location": "Lisbon, Portugal",
+      "team": "Data",
+      "commitment": "Full-time"
+    },
+    "descriptionPlain": "Tejo Labs Lda runs data pipelines for retail analytics. Python, SQL, dbt, Airflow, PostgreSQL. 2+ years. English-speaking team; remote within the EU is fine. Synthetic fixture for eu-job-pipeline.",
+    "hostedUrl": "https://example.com/jobs/lever/000000000001",
+    "createdAt": 1789689600000,
+    "workplaceType": "remote"
+  },
+  {
+    "id": "a1b2c3d4-0000-4000-8000-000000000002",
+    "text": "Senior Machine Learning Engineer",
+    "categories": {
+      "location": "Copenhagen, Denmark",
+      "team": "ML",
+      "commitment": "Full-time"
+    },
+    "descriptionPlain": "Øresund Insights ApS. Lead our forecasting models. 6+ years, PhD preferred. Danish or German fluency required. Synthetic fixture for eu-job-pipeline.",
+    "hostedUrl": "https://example.com/jobs/lever/000000000002",
+    "createdAt": 1789603200000,
+    "workplaceType": "onsite"
+  }
+]

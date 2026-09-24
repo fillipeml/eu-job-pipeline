@@ -1,0 +1,68 @@
+{
+  "data": [
+    {
+      "slug": "ai-engineer-nordlicht-analytics-berlin-000001",
+      "company_name": "Nordlicht Analytics GmbH",
+      "title": "AI Engineer",
+      "description": "<p>Nordlicht Analytics GmbH builds document-intelligence products for European insurers.</p><p><strong>You will</strong></p><ul><li>Ship LLM features in Python with structured outputs and evals</li><li>Own ETL pipelines into PostgreSQL</li></ul><p>English-speaking team; German is a plus but not required. We offer visa sponsorship and relocation support.</p><p>Synthetic fixture for eu-job-pipeline. Company does not exist.</p>",
+      "remote": false,
+      "url": "https://example.com/jobs/arbeitnow/000001",
+      "tags": [
+        "Python",
+        "LLM",
+        "PostgreSQL"
+      ],
+      "job_types": [
+        "full time"
+      ],
+      "location": "Berlin",
+      "created_at": 1789862400
+    },
+    {
+      "slug": "senior-data-engineer-rheinwerk-cologne-000002",
+      "company_name": "Rheinwerk Data AG",
+      "title": "Senior Data Engineer",
+      "description": "<p>Design our lakehouse on Spark and dbt. 6+ years of experience required. Fluent German (C1) is required for daily work with public-sector clients.</p><p>Synthetic fixture for eu-job-pipeline.</p>",
+      "remote": false,
+      "url": "https://example.com/jobs/arbeitnow/000002",
+      "tags": [
+        "Spark",
+        "dbt",
+        "Data Engineering"
+      ],
+      "job_types": [
+        "full time"
+      ],
+      "location": "Cologne",
+      "created_at": 1789776000
+    },
+    {
+      "slug": "junior-frontend-developer-tulip-amsterdam-000003",
+      "company_name": "Tulip Data B.V.",
+      "title": "Junior Frontend Developer",
+      "description": "<p>React and TypeScript for our analytics dashboards. Hybrid, Amsterdam. No German needed.</p><p>Synthetic fixture for eu-job-pipeline.</p>",
+      "remote": false,
+      "url": "https://example.com/jobs/arbeitnow/000003",
+      "tags": [
+        "React",
+        "TypeScript"
+      ],
+      "job_types": [
+        "full time"
+      ],
+      "location": "Amsterdam",
+      "created_at": 1789689600
+    }
+  ],
+  "links": {
+    "first": "https://www.arbeitnow.com/api/job-board-api?page=1",
+    "prev": null,
+    "next": null
+  },
+  "meta": {
+    "current_page": 1,
+    "path": "https://www.arbeitnow.com/api/job-board-api",
+    "per_page": 100,
+    "terms": "synthetic fixture"
+  }
+}
