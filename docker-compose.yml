@@ -1,0 +1,20 @@
+# One command to see the pipeline work on fictional data:
+#   docker compose run --rm jobs seed
+#   docker compose run --rm jobs fetch
+#   docker compose run --rm jobs score
+#   docker compose run --rm jobs report --top 10
+# Live mode: put ANTHROPIC_API_KEY in .env and set DEMO_MODE=false there.
+services:
+  jobs:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DEMO_MODE: ${DEMO_MODE:-true}
+      DB_PATH: /data/jobs.sqlite
+    volumes:
+      - jobs-data:/data
+
+volumes:
+  jobs-data:
