@@ -47,6 +47,19 @@ class LLMResult:
     input_tokens: int = 0
     output_tokens: int = 0
     cache_read_tokens: int = 0
+    cache_write_tokens: int = 0
+
+
+def batch_custom_id(job_key: str) -> str:
+    """A job key as the Message Batches API will accept it.
+
+    ``custom_id`` must match ``^[a-zA-Z0-9_-]{1,64}$``, and every job key is ``source:id``, so
+    the key itself is rejected — every request in the batch, not some of them. Stripping the
+    offending characters is not enough: job ids from the boards this reads carry dots, slashes
+    and accents, and two different postings can strip to the same string, which would quietly
+    drop one of them. A hash is injective enough and always in range.
+    """
+    return hashlib.sha256(job_key.encode("utf-8")).hexdigest()[:32]
 
 
 class FixtureMissError(LookupError):
@@ -73,7 +86,7 @@ class AnthropicLLMClient:
         self,
         model: str = "claude-opus-5",
         effort: str = "medium",
-        max_tokens: int = 1024,
+        max_tokens: int = 16000,
         api_key: str | None = None,
     ) -> None:
         self.model = model
@@ -141,6 +154,7 @@ def _result_from_message(message) -> LLMResult:
         input_tokens=usage.input_tokens or 0,
         output_tokens=usage.output_tokens or 0,
         cache_read_tokens=getattr(usage, "cache_read_input_tokens", 0) or 0,
+        cache_write_tokens=getattr(usage, "cache_creation_input_tokens", 0) or 0,
     )
 
 
@@ -213,9 +227,10 @@ class LLMScorer:
         """Score many jobs through the Message Batches API. Returns (records, failed_keys)."""
         if not isinstance(self.client, AnthropicLLMClient):
             raise TypeError("batch scoring needs the real Anthropic client")
-        by_id = {job.key: job for job in jobs}
+        by_id = {batch_custom_id(job.key): job for job in jobs}
         batch_id = self.client.submit_batch(
-            ((job.key, self.system, build_user(job)) for job in jobs), self.schema
+            ((batch_custom_id(job.key), self.system, build_user(job)) for job in jobs),
+            self.schema,
         )
         log.info("submitted batch %s with %d requests", batch_id, len(jobs))
         self.client.wait_batch(batch_id, poll_seconds, on_poll)
@@ -251,6 +266,7 @@ class LLMScorer:
             input_tokens=result.input_tokens,
             output_tokens=result.output_tokens,
             cache_read_tokens=result.cache_read_tokens,
+            cache_write_tokens=result.cache_write_tokens,
             latency_ms=int((perf_counter() - started) * 1000) if started is not None else 0,
         )
 

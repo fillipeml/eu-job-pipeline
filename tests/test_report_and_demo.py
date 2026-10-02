@@ -42,17 +42,57 @@ def test_csv_report_has_header_and_rows(sample_jobs):
     assert len(lines) == 3
 
 
-def test_cost_estimate_uses_cache_discount():
+def test_cost_estimate_bills_each_token_once():
+    """The three input counts do not overlap, so none of them is subtracted from another.
+
+    The earlier version of this test asserted the behaviour of the earlier version of the
+    code: it read `input_tokens` as the whole prompt and took the cached reads out of it. The
+    API reports `input_tokens` as the uncached remainder already, so that discounted the same
+    tokens twice and understated a cached run by about half. Both have been corrected here.
+    """
     usage = {
         "scorer": "llm:claude-opus-5",
         "scored": 100,
-        "input_tokens": 200_000,
+        "input_tokens": 50_000,
+        "output_tokens": 10_000,
+        "cache_read_tokens": 150_000,
+        "cache_write_tokens": 20_000,
+    }
+    # 50k uncached @ $5 + 150k read @ $0.50 + 20k written @ $6.25 + 10k output @ $25, per million
+    assert estimate_cost_usd(usage) == round(
+        (50_000 * 5 + 150_000 * 0.5 + 20_000 * 6.25 + 10_000 * 25) / 1e6, 4
+    )
+    assert estimate_cost_usd({**usage, "scorer": "heuristic"}) is None
+
+
+def test_a_run_served_entirely_from_cache_still_costs_something():
+    # The shape that made the old arithmetic collapse to zero: everything read from cache.
+    usage = {
+        "scorer": "llm:claude-opus-5",
+        "scored": 100,
+        "input_tokens": 0,
         "output_tokens": 10_000,
         "cache_read_tokens": 150_000,
     }
-    # uncached 50k @ $5 + cached 150k @ $0.5 + output 10k @ $25, per million
-    assert estimate_cost_usd(usage) == round((50_000 * 5 + 150_000 * 0.5 + 10_000 * 25) / 1e6, 4)
-    assert estimate_cost_usd({**usage, "scorer": "heuristic"}) is None
+    assert estimate_cost_usd(usage) == round((150_000 * 0.5 + 10_000 * 25) / 1e6, 4)
+
+
+def test_a_batch_custom_id_is_one_the_api_accepts():
+    """Every job key is `source:id`, and the Batches API rejects a colon.
+
+    Nothing caught this: the SDK types `custom_id` as a plain string, and no test exercised
+    the batch path, so `score --batch` would have failed on its first live run with every
+    request rejected at once.
+    """
+    import re
+
+    from eu_job_pipeline.scoring.llm import batch_custom_id
+
+    allowed = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")
+    keys = ["arbeitnow:demo-0001", "bundesagentur:demo-0003", "greenhouse:a/b.c-acentuação"]
+    ids = [batch_custom_id(k) for k in keys]
+    assert all(allowed.match(i) for i in ids)
+    assert len(set(ids)) == len(keys), "two different jobs must not share a custom_id"
 
 
 def test_stats_render_includes_cost_table():
