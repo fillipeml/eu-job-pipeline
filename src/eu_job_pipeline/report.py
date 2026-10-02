@@ -82,16 +82,28 @@ def render_csv(rows: list[tuple[Job, ScoreRecord]]) -> str:
     return buf.getvalue()
 
 
+#: What a cached token costs relative to an ordinary input token. Reads are the cheap side of
+#: the bargain; the request that writes an entry pays a premium for it.
+CACHE_READ_MULTIPLIER = 0.1
+CACHE_WRITE_MULTIPLIER = 1.25
+
+
 def estimate_cost_usd(usage: dict, prices: dict[str, tuple[float, float]] = PRICES) -> float | None:
-    """Cost of what a scorer actually spent, from the stored token counts."""
+    """Cost of what a scorer actually spent, from the stored token counts.
+
+    The three input counts do not overlap. ``input_tokens`` is already the uncached remainder,
+    not the whole prompt: the full prompt is ``input_tokens + cache_write + cache_read``. An
+    earlier version subtracted the cached reads from ``input_tokens`` before billing them,
+    which discounted the same tokens twice and understated a cached run by about half.
+    """
     model = usage["scorer"].removeprefix("llm:")
     if model not in prices:
         return None
     in_price, out_price = prices[model]
-    uncached = max(0, usage["input_tokens"] - usage["cache_read_tokens"])
     cost = (
-        uncached * in_price
-        + usage["cache_read_tokens"] * in_price * 0.1
+        usage["input_tokens"] * in_price
+        + usage["cache_read_tokens"] * in_price * CACHE_READ_MULTIPLIER
+        + usage.get("cache_write_tokens", 0) * in_price * CACHE_WRITE_MULTIPLIER
         + usage["output_tokens"] * out_price
     ) / 1e6
     return round(cost, 4)

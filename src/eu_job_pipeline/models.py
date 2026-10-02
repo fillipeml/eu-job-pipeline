@@ -75,14 +75,16 @@ class ScoreRecord(BaseModel):
     input_tokens: int = 0
     output_tokens: int = 0
     cache_read_tokens: int = 0
+    #: Tokens written to the cache, billed at a premium on the request that writes them.
+    cache_write_tokens: int = 0
     latency_ms: int = 0
 
 
 def llm_output_schema() -> dict:
     """JSON schema for structured outputs: flat, every field required, no extra keys.
 
-    Pydantic emits keywords the structured-output validator does not accept (titles,
-    numeric bounds), so the schema is built here explicitly and ranges are enforced by
+    Pydantic emits a `title` for every field, which the structured-output validator does
+    not accept, so the schema is built here explicitly and ranges are enforced by
     `JobScore.clamped()` after parsing.
     """
     return {

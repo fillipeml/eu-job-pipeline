@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS scores (
     input_tokens         INTEGER NOT NULL DEFAULT 0,
     output_tokens        INTEGER NOT NULL DEFAULT 0,
     cache_read_tokens    INTEGER NOT NULL DEFAULT 0,
+    cache_write_tokens   INTEGER NOT NULL DEFAULT 0,
     latency_ms           INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_scores_fit ON scores(fit DESC);
@@ -62,6 +63,19 @@ class Store:
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(SCHEMA)
+        self._add_missing_columns()
+
+    #: Columns added after the first release. `CREATE TABLE IF NOT EXISTS` leaves an existing
+    #: database on its original schema, so a store written by an earlier version would fail on
+    #: the first insert naming a column it has never heard of.
+    _LATER_COLUMNS = (("scores", "cache_write_tokens", "INTEGER NOT NULL DEFAULT 0"),)
+
+    def _add_missing_columns(self) -> None:
+        for table, column, decl in self._LATER_COLUMNS:
+            existing = {r["name"] for r in self.conn.execute(f"PRAGMA table_info({table})")}
+            if column not in existing:
+                with self.conn:
+                    self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
 
     def close(self) -> None:
         self.conn.close()
@@ -137,8 +151,9 @@ class Store:
                 """
                 INSERT INTO scores (job_key, fit, verdict, reasons, visa_sponsorship,
                                     language_requirement, seniority, workplace, scorer, scored_at,
-                                    input_tokens, output_tokens, cache_read_tokens, latency_ms)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    input_tokens, output_tokens, cache_read_tokens,
+                                    cache_write_tokens, latency_ms)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(job_key) DO UPDATE SET
                     fit = excluded.fit, verdict = excluded.verdict, reasons = excluded.reasons,
                     visa_sponsorship = excluded.visa_sponsorship,
@@ -146,7 +161,9 @@ class Store:
                     seniority = excluded.seniority, workplace = excluded.workplace,
                     scorer = excluded.scorer, scored_at = excluded.scored_at,
                     input_tokens = excluded.input_tokens, output_tokens = excluded.output_tokens,
-                    cache_read_tokens = excluded.cache_read_tokens, latency_ms = excluded.latency_ms
+                    cache_read_tokens = excluded.cache_read_tokens,
+                    cache_write_tokens = excluded.cache_write_tokens,
+                    latency_ms = excluded.latency_ms
                 """,
                 (
                     record.job_key,
@@ -162,6 +179,7 @@ class Store:
                     record.input_tokens,
                     record.output_tokens,
                     record.cache_read_tokens,
+                    record.cache_write_tokens,
                     record.latency_ms,
                 ),
             )
@@ -170,7 +188,7 @@ class Store:
         sql = """
             SELECT j.*, s.fit, s.verdict, s.reasons, s.visa_sponsorship, s.language_requirement,
                    s.seniority, s.workplace, s.scorer, s.scored_at, s.input_tokens, s.output_tokens,
-                   s.cache_read_tokens, s.latency_ms
+                   s.cache_read_tokens, s.cache_write_tokens, s.latency_ms
             FROM scores s JOIN jobs j ON j.key = s.job_key
             WHERE s.fit >= ?
             ORDER BY s.fit DESC, j.posted_at DESC NULLS LAST, j.key
@@ -194,7 +212,8 @@ class Store:
         }
         usage = q(
             """SELECT COUNT(*) n, COALESCE(SUM(input_tokens),0) i, COALESCE(SUM(output_tokens),0) o,
-                      COALESCE(SUM(cache_read_tokens),0) c, COALESCE(AVG(latency_ms),0) lat,
+                      COALESCE(SUM(cache_read_tokens),0) c,
+                      COALESCE(SUM(cache_write_tokens),0) w, COALESCE(AVG(latency_ms),0) lat,
                       scorer FROM scores GROUP BY scorer"""
         ).fetchall()
         return {
@@ -210,6 +229,7 @@ class Store:
                     "input_tokens": r["i"],
                     "output_tokens": r["o"],
                     "cache_read_tokens": r["c"],
+                    "cache_write_tokens": r["w"],
                     "avg_latency_ms": int(r["lat"]),
                 }
                 for r in usage
@@ -255,5 +275,6 @@ def _row_to_record(row: sqlite3.Row) -> ScoreRecord:
         input_tokens=row["input_tokens"],
         output_tokens=row["output_tokens"],
         cache_read_tokens=row["cache_read_tokens"],
+        cache_write_tokens=row["cache_write_tokens"],
         latency_ms=row["latency_ms"],
     )
