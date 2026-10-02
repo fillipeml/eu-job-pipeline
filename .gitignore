@@ -8,6 +8,7 @@ profile.md
 .demo/
 data/
 reports/
+sanitize.toml
 sanitize-report.*
 
 # AI tooling local state
