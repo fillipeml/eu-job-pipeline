@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-opus-5"
     anthropic_effort: str = Field(default="medium", pattern="^(low|medium|high|xhigh|max)$")
-    llm_max_tokens: int = 1024
+    llm_max_tokens: int = 16000
 
     # Sources
     target_countries: str = DEFAULT_TARGET_COUNTRIES

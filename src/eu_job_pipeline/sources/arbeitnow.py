@@ -38,7 +38,15 @@ class ArbeitnowSource:
     @staticmethod
     def parse(raw: dict) -> Job:
         location = raw.get("location") or ""
-        remote = bool(raw.get("remote")) or looks_remote(location, raw.get("title"))
+        # Arbeitnow states `remote` explicitly. `or` discarded an explicit false and fell
+        # through to guessing from the title, so "not remote" reached the scorers as "not
+        # stated" — a different claim, and the weaker one.
+        stated_remote = raw.get("remote")
+        remote = (
+            bool(stated_remote)
+            if stated_remote is not None
+            else looks_remote(location, raw.get("title"))
+        )
         return Job(
             source="arbeitnow",
             external_id=str(raw["slug"]),
